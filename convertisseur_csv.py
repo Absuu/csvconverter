@@ -101,6 +101,7 @@ class Application(tk.Tk):
 
     def parcourir(self):
         chemin = filedialog.askopenfilename(
+            parent=self,
             title="Choisir le fichier CSV à convertir",
             filetypes=[("Fichiers CSV", "*.csv"), ("Tous les fichiers", "*.*")])
         if chemin:
@@ -110,6 +111,7 @@ class Application(tk.Tk):
 
     def enregistrer_sous(self):
         chemin = filedialog.asksaveasfilename(
+            parent=self,
             title="Enregistrer le fichier converti",
             defaultextension=".csv",
             initialfile="mots_de_passe_converti.csv",
@@ -120,23 +122,32 @@ class Application(tk.Tk):
     def lancer(self):
         entree, sortie = self.entree_var.get(), self.sortie_var.get()
         if not entree or not sortie:
-            messagebox.showwarning("Champs manquants",
-                                   "Choisissez un fichier à convertir et un emplacement de sortie.")
+            messagebox.showwarning(
+                "Champs manquants",
+                "Choisissez un fichier à convertir et un emplacement de sortie.",
+                parent=self)
             return
         try:
             nb = convertir(entree, sortie, self.format_var.get())
         except Exception as e:
-            messagebox.showerror("Erreur", str(e))
+            messagebox.showerror("Erreur", str(e), parent=self)
             return
+
+        # Ramène la fenêtre principale au premier plan, puis affiche
+        # la confirmation PAR-DESSUS (parent=self la garde devant).
+        self.update_idletasks()
+        self.lift()
+        self.focus_force()
         messagebox.showinfo(
             "Conversion terminée",
-            "%d entrées converties.\n\n"
+            "%d entrées converties avec succès.\n\n"
             "⚠ RAPPEL DE SÉCURITÉ ⚠\n"
             "Ces fichiers contiennent vos mots de passe EN CLAIR.\n"
             "Une fois l'import terminé, supprimez :\n"
             "  • le CSV d'origine\n"
             "  • le CSV converti\n"
-            "puis videz la corbeille." % nb)
+            "puis videz la corbeille." % nb,
+            parent=self)
 
 
 if __name__ == "__main__":
