@@ -187,12 +187,33 @@ def convertir(chemin_entree, chemin_sortie, format_source):
     return len(lignes)
 
 
+def activer_dpi_windows():
+    """Demande à Windows d'utiliser la résolution réelle de l'écran (rendu net)."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        try:
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        except (AttributeError, OSError):
+            ctypes.windll.user32.SetProcessDPIAware()
+    except (AttributeError, OSError):
+        pass
+
+
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Kalydian · Convertisseur CSV")
-        self.geometry("760x490")
-        self.minsize(680, 460)
+        try:
+            self.tk.call("tk", "scaling", self.winfo_fpixels("1i") / 72.0)
+        except (tk.TclError, ZeroDivisionError):
+            pass
+        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
+        w = max(320, min(int(760 * self.winfo_fpixels("1i") / 96), int(sw * 0.9)))
+        h = max(300, min(int(490 * self.winfo_fpixels("1i") / 96), int(sh * 0.9)))
+        self.geometry("%dx%d+%d+%d" % (w, h, (sw - w) // 2, (sh - h) // 2))
+        self.minsize(min(680, w), min(460, h))
         self.configure(bg="#f3f6fa")
         style = ttk.Style(self)
         try:
@@ -207,6 +228,9 @@ class Application(tk.Tk):
         style.configure("Card.TLabel", background="#ffffff")
         style.configure("TButton", font=("Segoe UI", 10), padding=(10, 6))
         style.configure("Accent.TButton", background="#176b87", foreground="white", font=("Segoe UI", 10, "bold"))
+        style.map("Accent.TButton",
+                  foreground=[("disabled", "#d5dce2"), ("active", "white")],
+                  background=[("disabled", "#9aabb5"), ("pressed", "#104b60"), ("active", "#125a72")])
         self.format_var = tk.StringVar(value=list(FORMATS)[0])
         self.entree_var = tk.StringVar()
         self.sortie_var = tk.StringVar()
@@ -301,4 +325,5 @@ class Application(tk.Tk):
 
 
 if __name__ == "__main__":
+    activer_dpi_windows()
     Application().mainloop()
