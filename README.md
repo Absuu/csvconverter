@@ -2,6 +2,26 @@
 
 Application Python 3 avec interface Tkinter/ttk, compilée sous Windows par GitHub Actions et PyInstaller (`--onefile --windowed`). Elle ne requiert aucune dépendance Python tierce. Le chemin de sortie garde le template strict `name;url;login;password;otp`.
 
+## Lancement rapide (Windows, sans blocage SmartScreen)
+
+Cette méthode télécharge et exécute directement le script Python depuis ce dépôt. Aucun `.exe` n'est téléchargé, donc aucun avertissement SmartScreen ni « Contrôle intelligent des applications ».
+
+1. Ouvrez **PowerShell** (menu Démarrer, tapez `PowerShell`).
+2. Collez la commande suivante puis appuyez sur Entrée :
+
+```powershell
+if (-not (Get-Command python -ErrorAction SilentlyContinue)) { winget install -e --id Python.Python.3.12 --scope user --silent --accept-package-agreements --accept-source-agreements; $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + [System.Environment]::GetEnvironmentVariable("Path","Machine") }; irm https://raw.githubusercontent.com/Absuu/csvconverter/main/convertisseur_csv.py -OutFile "$env:TEMP\convertisseur_csv.py"; python "$env:TEMP\convertisseur_csv.py"
+```
+
+Ce que fait la commande :
+- installe Python 3.12 via `winget` uniquement s'il n'est pas déjà présent ;
+- télécharge la dernière version de `convertisseur_csv.py` depuis la branche `main` ;
+- lance l'application.
+
+Si Python vient d'être installé et que la fenêtre ne s'ouvre pas, fermez PowerShell, rouvrez-le et relancez la même commande.
+
+Source officielle unique : `https://github.com/Absuu/csvconverter`. N'exécutez pas de commande provenant d'un autre dépôt ou d'un fork.
+
 ## Sources prises en charge
 
 - Google Chrome, Microsoft Edge, Brave, Opera, Vivaldi et Google Password Manager (exports Chromium : `name,url,username,password`; champs supplémentaires tolérés)
